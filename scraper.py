@@ -88,12 +88,6 @@ class Scraper():
         session = HTMLSession()
         response = session.get(url)
 
-        # TEAM PROFILE
-        team = response.html.find('dl.user-profile-dl', first=True)
-        team_asset = response.html.find('section.profile-user', first=True)
-        team_name = team.find('dd')[0].text.strip()
-        team_logo = team_asset.find('img')[0].attrs['src']
-
         # TEAM MATCH
         table_match = response.html.find('table')[0]
         data_match = []
@@ -109,24 +103,12 @@ class Scraper():
             }
            data_match.append(item)
 
-        data = {
-            "team_name": team_name,
-            "team_logo": team_logo,
-            "match": data_match,
-        }
-
-        return data
+        return data_match
     
     # TEAM STATISTICS Scrap
     def team_statistics(self, url):
         session = HTMLSession()
         response = session.get(url)
-
-        # TEAM PROFILE
-        team = response.html.find('dl.user-profile-dl', first=True)
-        team_asset = response.html.find('section.profile-user', first=True)
-        team_name = team.find('dd')[0].text.strip()
-        team_logo = team_asset.find('img')[0].attrs['src']
 
         # STATISTICS
         table_stats = response.html.find('table')[2]
@@ -148,25 +130,12 @@ class Scraper():
             }
            data_stats.append(item)
 
-        data = {
-            "team_name": team_name,
-            "team_logo": team_logo,
-            "statistics": data_stats
-        }
-
-        return data
+        return data_stats
     
     # TEAM PLAYERS Scrap
     def team_players(self, url):
         session = HTMLSession()
         response = session.get(url)
-
-        # TEAM PROFILE
-        team = response.html.find('dl.user-profile-dl', first=True)
-        team_asset = response.html.find('section.profile-user', first=True)
-        team_name = team.find('dd')[0].text.strip()
-        team_logo = team_asset.find('img')[0].attrs['src']
-      
     
         # PLAYER LIST
         table_player = response.html.find('table')[1]
@@ -188,13 +157,7 @@ class Scraper():
             }
            data_player.append(item)
 
-        data = {
-            "team_name": team_name,
-            "team_logo": team_logo,
-            "players":data_player,
-        }
-
-        return data
+        return data_player
     
     # PLAYER PROFILE Scrap
     def player_profile(self, url):

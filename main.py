@@ -40,17 +40,17 @@ async def read_item(team_id: str):
 @app.get(config.API_VERSION+"/team/match/{team_id}")
 async def read_item(team_id: str):
     data = scrap.team_match(config.SITE_ENTRYPOINT+'/teams/'+team_id)
-    return BaseResponse(message="Team Match Data", data=data)
+    return BaseResponseList(message="Team Match Data", data=data)
 
 @app.get(config.API_VERSION+"/team/statistics/{team_id}")
 async def read_item(team_id: str):
     data = scrap.team_statistics(config.SITE_ENTRYPOINT+'/teams/'+team_id)
-    return BaseResponse(message="Team Statistics Data", data=data)
+    return BaseResponseList(message="Team Statistics Data", data=data)
 
 @app.get(config.API_VERSION+"/team/players/{team_id}")
 async def read_item(team_id: str):
     data = scrap.team_players(config.SITE_ENTRYPOINT+'/teams/'+team_id)
-    return BaseResponse(message="Team Players Data", data=data)
+    return BaseResponseList(message="Team Players Data", data=data)
 
 @app.get(config.API_VERSION+"/player/profile/{player_id}")
 async def read_item(player_id: str):
