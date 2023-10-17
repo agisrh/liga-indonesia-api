@@ -68,6 +68,31 @@ class Scraper():
         game_win = team_stats.find('p')[1].text.strip()
         game_draw = team_stats.find('p')[2].text.strip()
         game_lose = team_stats.find('p')[3].text.strip()
+    
+        data = {
+            "team_name": team_name,
+            "team_founded": team_founded,
+            "team_logo": team_logo,
+            "team_venue": team_venue,
+            "game_play": game_play,
+            "game_win": game_win,
+            "game_draw": game_draw,
+            "game_lose": game_lose,
+            "description": team_desc,
+        }
+
+        return data
+    
+    # TEAM MATCH Scrap
+    def team_match(self, url):
+        session = HTMLSession()
+        response = session.get(url)
+
+        # TEAM PROFILE
+        team = response.html.find('dl.user-profile-dl', first=True)
+        team_asset = response.html.find('section.profile-user', first=True)
+        team_name = team.find('dd')[0].text.strip()
+        team_logo = team_asset.find('img')[0].attrs['src']
 
         # TEAM MATCH
         table_match = response.html.find('table')[0]
@@ -83,26 +108,25 @@ class Scraper():
                 'competitions': row.find('td')[6].text.strip(),
             }
            data_match.append(item)
+
+        data = {
+            "team_name": team_name,
+            "team_logo": team_logo,
+            "match": data_match,
+        }
+
+        return data
     
-        # PLAYER LIST
-        table_player = response.html.find('table')[1]
-        data_player = []
-        for row in table_player.find('tr'):
-           player_id = row.find('td')[0].find('a')[0].attrs['href'].split('/')
-           photo = row.find('td')[0].find('img')[0].attrs['src']
-           if "default.jpg" not in photo:
-               photo = 'https:'+photo
-           else:
-               photo = config.SITE_ENTRYPOINT+photo
-               
-           item = {
-                'player_id':player_id[2],
-                'player_photo': photo,
-                'player_number': row.find('td')[1].text.strip(),
-                'player_name': row.find('td')[2].text.strip(),
-                'position': row.find('td')[3].text.strip(),
-            }
-           data_player.append(item)
+    # TEAM STATISTICS Scrap
+    def team_statistics(self, url):
+        session = HTMLSession()
+        response = session.get(url)
+
+        # TEAM PROFILE
+        team = response.html.find('dl.user-profile-dl', first=True)
+        team_asset = response.html.find('section.profile-user', first=True)
+        team_name = team.find('dd')[0].text.strip()
+        team_logo = team_asset.find('img')[0].attrs['src']
 
         # STATISTICS
         table_stats = response.html.find('table')[2]
@@ -126,23 +150,54 @@ class Scraper():
 
         data = {
             "team_name": team_name,
-            "team_founded": team_founded,
             "team_logo": team_logo,
-            "team_venue": team_venue,
-            "game_play": game_play,
-            "game_win": game_win,
-            "game_draw": game_draw,
-            "game_lose": game_lose,
-            "description": team_desc,
-            "match": data_match,
-            "players":data_player,
             "statistics": data_stats
         }
 
         return data
     
+    # TEAM PLAYERS Scrap
+    def team_players(self, url):
+        session = HTMLSession()
+        response = session.get(url)
+
+        # TEAM PROFILE
+        team = response.html.find('dl.user-profile-dl', first=True)
+        team_asset = response.html.find('section.profile-user', first=True)
+        team_name = team.find('dd')[0].text.strip()
+        team_logo = team_asset.find('img')[0].attrs['src']
+      
+    
+        # PLAYER LIST
+        table_player = response.html.find('table')[1]
+        data_player = []
+        for row in table_player.find('tr'):
+           player_id = row.find('td')[0].find('a')[0].attrs['href'].split('/')
+           photo = row.find('td')[0].find('img')[0].attrs['src']
+           if "default.jpg" not in photo:
+               photo = 'https:'+photo
+           else:
+               photo = config.SITE_ENTRYPOINT+photo
+               
+           item = {
+                'player_id':player_id[2],
+                'player_photo': photo,
+                'player_number': row.find('td')[1].text.strip(),
+                'player_name': row.find('td')[2].text.strip(),
+                'position': row.find('td')[3].text.strip(),
+            }
+           data_player.append(item)
+
+        data = {
+            "team_name": team_name,
+            "team_logo": team_logo,
+            "players":data_player,
+        }
+
+        return data
+    
     # PLAYER PROFILE Scrap
-    def player(self, url):
+    def player_profile(self, url):
         session = HTMLSession()
         response = session.get(url)
 
@@ -171,6 +226,42 @@ class Scraper():
         red_card = player_stats.find('p')[3].text.strip()
         yellow_card = player_stats.find('p')[4].text.strip()
 
+
+        data = {
+            "player_name": player_name,
+            "player_team": team_name,
+            "player_photo": player_photo,
+            "player_position": player_position,
+            "player_nationality": player_nat,
+            "player_age": player_age,
+            "player_height": player_height,
+            "player_weight": player_weight,
+            "play": play,
+            "goals": goals,
+            "assists":assists,
+            "red_card": red_card,
+            "yellow_card": yellow_card,
+        }
+
+        return data
+    
+     # PLAYER HISTORY Scrap
+    def player_history(self, url):
+        session = HTMLSession()
+        response = session.get(url)
+
+        # PLAYER PROFILE
+        widget_name = response.html.find('div.profile-header-title', first=True)
+        player_asset = response.html.find('section.profile-user', first=True)
+        photo = player_asset.find('img')[0].attrs['src']
+        if "default.jpg" not in photo:
+            photo = 'https:'+photo
+        else:
+            photo = config.SITE_ENTRYPOINT+photo
+
+        player_name = widget_name.find('h2')[0].text.strip()
+        player_photo = photo
+       
         # CLUB HISTORY
         table_club = response.html.find('table')[1]
         data_club = []
@@ -227,18 +318,7 @@ class Scraper():
 
         data = {
             "player_name": player_name,
-            "player_team": team_name,
             "player_photo": player_photo,
-            "player_position": player_position,
-            "player_nationality": player_nat,
-            "player_age": player_age,
-            "player_height": player_height,
-            "player_weight": player_weight,
-            "play": play,
-            "goals": goals,
-            "assists":assists,
-            "red_card": red_card,
-            "yellow_card": yellow_card,
             "club_history": data_club,
             "tournament_history": data_tournament
         }
