@@ -21,17 +21,64 @@ async def health_check(request: Request):
 
     return BaseResponse(data=data)
 
-@app.get("/clubs")
+
+@app.get("/tournaments")
 async def read_item():
-    data = scrap.clubs('clubs/'+config.SITE_INDEX)
-    return BaseResponseList(message="Clubs", data=data)
+    data = scrap.tournaments(config.SITE_ENTRYPOINT+'/list-of-tournaments')
+    return BaseResponseList(message="List of Tournaments", data=data)
+
+@app.get("/teams")
+async def read_item():
+    data = scrap.teams(config.SITE_ENTRYPOINT+'/tournaments/teams/'+config.SITE_INDEX)
+    return BaseResponseList(message="Teams Liga 1 Indonesia", data=data)
+
+@app.get("/team/profile/{id}")
+async def read_item(id: str):
+    data = scrap.team_profile(config.SITE_ENTRYPOINT+'/teams/'+id)
+    return BaseResponse(message="Team Profile Liga 1 Indonesia", data=data)
+
+@app.get("/player/{id}")
+async def read_item(id: str):
+    data = scrap.player(config.SITE_ENTRYPOINT+'/players/'+id)
+    return BaseResponse(message="Player Profile Liga 1 Indonesia", data=data)
 
 @app.get("/standings")
 async def read_item():
-    data = scrap.standings('table/'+config.SITE_INDEX)
-    return BaseResponseList(message="Standings", data=data)
+    data = scrap.standings(config.SITE_ENTRYPOINT+'/tournaments/'+config.SITE_INDEX)
+    return BaseResponseList(message="Standings Liga 1 Indonesia", data=data)
 
-@app.get("/fixtures")
+@app.get("/matchday")
+async def read_item(gameweek: str = ''):
+    data = scrap.matchday(config.SITE_ENTRYPOINT+'/tournaments/fixtures/'+config.SITE_INDEX+'?gameweek='+gameweek)
+    return BaseResponseList(message="Standings Liga 1 Indonesia", data=data)
+
+@app.get("/statistics/topscorer")
 async def read_item():
-    data = scrap.fixtures('fixtures/'+config.SITE_INDEX)
-    return BaseResponseList(message="Fixtures", data=data)
+    data = scrap.topscorer(config.SITE_ENTRYPOINT+'/tournaments/stats/'+config.SITE_INDEX)
+    return BaseResponseList(message="5 Top Scorer Liga 1 Indonesia", data=data)
+
+@app.get("/statistics/goalkeeper_save")
+async def read_item():
+    data = scrap.goalkeeper_save(config.SITE_ENTRYPOINT+'/tournaments/stats/'+config.SITE_INDEX)
+    return BaseResponseList(message="5 Top Goal Keeper Save Liga 1 Indonesia", data=data)
+
+@app.get("/statistics/successful_passes")
+async def read_item():
+    data = scrap.successful_passes(config.SITE_ENTRYPOINT+'/tournaments/stats/'+config.SITE_INDEX)
+    return BaseResponseList(message="5 Top Successful Passes Liga 1 Indonesia", data=data)
+
+@app.get("/statistics/red_card")
+async def read_item():
+    data = scrap.red_card(config.SITE_ENTRYPOINT+'/tournaments/stats/'+config.SITE_INDEX)
+    return BaseResponseList(message="5 Top Red Card Liga 1 Indonesia", data=data)
+
+@app.get("/statistics/yellow_card")
+async def read_item():
+    data = scrap.yellow_card(config.SITE_ENTRYPOINT+'/tournaments/stats/'+config.SITE_INDEX)
+    return BaseResponseList(message="5 Top Yellow Card Liga 1 Indonesia", data=data)
+
+@app.get("/statistics/team_top_goal")
+async def read_item():
+    data = scrap.team_top_goal(config.SITE_ENTRYPOINT+'/tournaments/team_stats/'+config.SITE_INDEX)
+    return BaseResponseList(message="Team Top Goal Liga 1 Indonesia", data=data)
+    
