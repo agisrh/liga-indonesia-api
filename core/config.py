@@ -20,3 +20,7 @@ VERSION = config("VERSION", cast=str, default="1.0.0")
 # Scrapers settings
 SITE_ENTRYPOINT = config("SITE_ENTRYPOINT", cast=str)
 SITE_INDEX = config("SITE_INDEX", cast=str)
+
+SITE_NEWS = config("SITE_NEWS", cast=str)
+PLAYLIST = config("PLAYLIST", cast=str)
+

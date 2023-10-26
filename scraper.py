@@ -1,6 +1,10 @@
 from requests_html import HTMLSession
 from core import config
+from pytube import Playlist
+from helper import Helper
 
+
+helper = Helper()
 class Scraper():
     
     # TOURNAMENTS Scrap
@@ -39,11 +43,12 @@ class Scraper():
 
         for row in teams:
             row_id = row.find('a')[1].attrs["href"].split('/')
+            teamName = row.find('h5', first=True).text.strip();
             item = {
                 'team_id': row_id[2],
-                'team_name': row.find('h5', first=True).text.strip(),
+                'team_name': teamName,
                 'team_venue': row.find('span', first=True).text.strip(),
-                'team_logo': row.find('img')[0].attrs["src"],
+                'team_logo': helper.getLogo(row.find('h5', first=True).text.strip()),
             }
             teamList.append(item)
 
@@ -63,7 +68,7 @@ class Scraper():
         team_desc = team.find('dd')[1].text.strip()
         team_founded = team.find('dd')[2].text.strip()
         team_venue = team.find('dd')[3].text.strip()
-        team_logo = team_asset.find('img')[0].attrs['src']
+        team_logo = helper.getLogo(team_name)
         game_play = team_stats.find('p')[0].text.strip()
         game_win = team_stats.find('p')[1].text.strip()
         game_draw = team_stats.find('p')[2].text.strip()
@@ -94,11 +99,11 @@ class Scraper():
         for row in table_match.find('tr'):
            item = {
                 'time': row.find('td')[0].text.strip(),
-                'home': row.find('td')[1].text.strip(),
-                'club_logo_home': row.find('td')[2].find('img')[0].attrs['src'],
+                'home_club': row.find('td')[1].text.strip(),
+                'club_logo_home': helper.getLogo(row.find('td')[1].text.strip()),
                 'score': row.find('td')[3].text.strip(),
-                'club_logo_away': row.find('td')[4].find('img')[0].attrs['src'],
-                'away': row.find('td')[5].text.strip(),
+                'club_logo_away': helper.getLogo(row.find('td')[5].text.strip()),
+                'away_club': row.find('td')[5].text.strip(),
                 'competitions': row.find('td')[6].text.strip(),
             }
            data_match.append(item)
@@ -298,7 +303,7 @@ class Scraper():
         for row in table.find('tr')[2:]:
            item = {
                 'position': row.find('td')[0].text.strip(),
-                'logo': row.find('td')[1].find('img')[0].attrs['src'],
+                'logo': helper.getLogo(row.find('td')[2].text.strip()),
                 'club': row.find('td')[2].text.strip(),
                 'matches': row.find('td')[3].text.strip(),
                 'win': row.find('td')[4].text.strip(),
@@ -315,6 +320,10 @@ class Scraper():
     def matchday(self, url):
         session = HTMLSession()
         response = session.get(url)
+
+        widget_gameweek = response.html.find('div#match-active', first=True)
+        gameweek = widget_gameweek.find('h5')[0].text.strip().split(' ')
+        week = int(gameweek[1])
         table = response.html.find('table')[0]
 
         array_data = []
@@ -322,20 +331,72 @@ class Scraper():
             row_length = len(row.find('td'))
             if(row_length > 1):
                 item = {
+                    "gameweek": week,
                     "time": row.find('td')[0].text.strip(),
-                    "home": row.find('td')[1].text.strip(),
-                    "home_club_logo": row.find('td')[2].find('img')[0].attrs['src'],
+                    "home_club": row.find('td')[1].text.strip(),
+                    "home_club_logo": helper.getLogo(row.find('td')[1].text.strip()),
                     "score": row.find('td')[3].text.strip(),
-                    "away_club_logo": row.find('td')[4].find('img')[0].attrs['src'],
-                    "away": row.find('td')[5].text.strip(),
+                    "away_club_logo": helper.getLogo(row.find('td')[5].text.strip()),
+                    "away_club": row.find('td')[5].text.strip(),
                     "venue": row.find('td')[6].text.strip(),
                 }
             else:
                 item = {
+                    "gameweek": week,
                     "date": row.find('td')[0].text.strip(),
                 }
             
             array_data.append(item)
+        return array_data
+    
+    # NEXT MATCH Scrap
+    def nextmatch(self, url):
+        session = HTMLSession()
+        res_current = session.get(url)
+
+        widget_gameweek = res_current.html.find('div#match-active', first=True)
+        gameweek = widget_gameweek.find('h5')[0].text.strip().split(' ')
+        week = int(gameweek[1])+1
+
+        res_next = session.get(url+'?gameweek='+str(week))
+        table = res_next.html.find('table')[0]
+
+        array_data = []
+        for row in table.find('tr'):
+            row_length = len(row.find('td'))
+            if(row_length > 1):
+                item = {
+                    "gameweek": week,
+                    "time": row.find('td')[0].text.strip(),
+                    "home_club": row.find('td')[1].text.strip(),
+                    "home_club_logo": helper.getLogo(row.find('td')[1].text.strip()),
+                    "score": row.find('td')[3].text.strip(),
+                    "away_club_logo": helper.getLogo(row.find('td')[5].text.strip()),
+                    "away_club": row.find('td')[5].text.strip(),
+                    "venue": row.find('td')[6].text.strip(),
+                }
+            else:
+                item = {
+                    "gameweek": week,
+                    "date": row.find('td')[0].text.strip(),
+                }
+            
+            array_data.append(item)
+        return array_data
+    
+    # HIGHLIGHTS Scrap
+    def highlights(self, url):
+        playlist = Playlist(url)
+
+        array_data = []
+        for video in playlist.videos[:15]:
+            item = {
+                "title": video.title,
+                "video": video.watch_url,
+                "thumbnail": video.thumbnail_url,
+            }
+            array_data.append(item)
+
         return array_data
     
     # TOP SCORER Scrap
@@ -437,7 +498,7 @@ class Scraper():
         for row in table.find('tr')[2:]:
            item = {
                 'position': row.find('td')[0].text.strip(),
-                'club_logo': 'https:'+row.find('td')[1].find('img')[0].attrs['src'],
+                'club_logo': helper.getLogo(row.find('td')[2].text.strip()),
                 'club': row.find('td')[2].text.strip(),
                 'play':  row.find('td')[3].text.strip(),
                 'goal': row.find('td')[4].text.strip(),
@@ -445,3 +506,18 @@ class Scraper():
             }
            table_data.append(item)
         return table_data
+    
+    # NEWS Scrap
+    def news(self, url):
+        session = HTMLSession()
+        response = session.get(url)
+        table = response.html.find('ul.box-article-list')[0]
+        data = []
+        for row in table.find('li'):
+            item = {
+                    'title': row.find('p')[0].text.strip(),
+                    'thumbnail': row.find('img.lazy_loaded')[0].attrs['data-src'],
+                    'url': row.find('a')[0].attrs["href"],
+                }
+            data.append(item)
+        return data

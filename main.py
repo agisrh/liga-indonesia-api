@@ -72,6 +72,21 @@ async def read_item(gameweek: str = ''):
     data = scrap.matchday(config.SITE_ENTRYPOINT+'/tournaments/fixtures/'+config.SITE_INDEX+'?gameweek='+gameweek)
     return BaseResponseList(message="Matchday", data=data)
 
+@app.get(config.API_VERSION+"/nextmatch")
+async def read_item():
+    data = scrap.nextmatch(config.SITE_ENTRYPOINT+'/tournaments/fixtures/'+config.SITE_INDEX)
+    return BaseResponseList(message="Next Match", data=data)
+
+@app.get(config.API_VERSION+"/highlights")
+async def read_item():
+    data = scrap.highlights(config.PLAYLIST)
+    return BaseResponseList(message="Highlights", data=data)
+
+@app.get(config.API_VERSION+"/news")
+async def read_item():
+    data = scrap.news(config.SITE_NEWS)
+    return BaseResponseList(message="News", data=data)
+
 @app.get(config.API_VERSION+"/statistics/topscorer")
 async def read_item():
     data = scrap.topscorer(config.SITE_ENTRYPOINT+'/tournaments/stats/'+config.SITE_INDEX)
