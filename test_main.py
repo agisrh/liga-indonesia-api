@@ -119,3 +119,24 @@ def test_team_top_goal(client: TestClient):
     assert response.status_code == 200
     response_data = response.json()
     assert response.json() == response_data
+
+def netxmatch(client: TestClient):
+    url = f"{config.API_VERSION}/nextmatch"
+    response = client.get(url)
+    assert response.status_code == 200
+    response_data = response.json()
+    assert response.json() == response_data
+
+def netxmatch(client: TestClient):
+    url = f"{config.API_VERSION}/news"
+    response = client.get(url)
+    assert response.status_code == 200
+    response_data = response.json()
+    assert response.json() == response_data
+
+def netxmatch(client: TestClient):
+    url = f"{config.API_VERSION}/highlights"
+    response = client.get(url)
+    assert response.status_code == 200
+    response_data = response.json()
+    assert response.json() == response_data
