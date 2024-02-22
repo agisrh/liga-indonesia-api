@@ -181,7 +181,7 @@ class Scraper():
             photo = config.SITE_ENTRYPOINT+photo
 
         team_name = player.find('dd')[0].text.strip()
-        player_name = widget_name.find('h2')[0].text.strip()
+        player_name = widget_name.find('h1')[0].text.strip()
         player_photo = photo
         player_position = player.find('dd')[1].text.strip()
         player_nat = player.find('dd')[2].text.strip()
@@ -227,7 +227,7 @@ class Scraper():
         else:
             photo = config.SITE_ENTRYPOINT+photo
 
-        player_name = widget_name.find('h2')[0].text.strip()
+        player_name = widget_name.find('h1')[0].text.strip()
         player_photo = photo
        
         # CLUB HISTORY
@@ -520,4 +520,27 @@ class Scraper():
                     'url': row.find('a')[0].attrs["href"],
                 }
             data.append(item)
+        return data
+    
+    # News Detail
+    def news_detail(self, url):
+        session = HTMLSession()
+        response = session.get(url)
+
+        # PLAYER PROFILE
+        sec_title = response.html.find('div.detail-headline-user', first=True)
+        sec_desc = response.html.find('div.detail-paragraph', first=True)
+        sec_img  = response.html.find('div.detail-assets', first=True)
+        photo = sec_img.find('img')[0].attrs['src']
+
+        news_title = sec_title.find('h1')[0].text.strip()
+        news_desc = sec_desc.find('dd')[0].text.strip()
+
+
+        data = {
+            "news_title": news_title,
+            "news_photo": photo,
+            "news_description": news_desc,
+        }
+
         return data

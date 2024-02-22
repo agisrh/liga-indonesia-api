@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request
+from pydantic import HttpUrl
 from scraper import Scraper
 from core.schemas import BaseResponse, BaseResponseList
 from core import config
@@ -6,7 +7,7 @@ from core import config
 app = FastAPI(
     title='Unofficial API Liga Indonesia',
     description='This is unofficial API Liga 1 Indonesia with method scrapping data',
-    version='1.0.0'
+    version='1.0.1'
     )
 scrap = Scraper()
 
@@ -52,7 +53,7 @@ async def read_item(team_id: str):
     data = scrap.team_players(config.SITE_ENTRYPOINT+'/teams/'+team_id)
     return BaseResponseList(message="Team Players Data", data=data)
 
-@app.get(config.API_VERSION+"/player/profile/{player_id}")
+@app.get(config.API_VERSION+"/players/profile/{player_id}")
 async def read_item(player_id: str):
     data = scrap.player_profile(config.SITE_ENTRYPOINT+'/players/'+player_id)
     return BaseResponse(message="Player Profile Data", data=data)
@@ -86,6 +87,11 @@ async def read_item():
 async def read_item():
     data = scrap.news(config.SITE_NEWS)
     return BaseResponseList(message="News", data=data)
+
+# @app.post(config.API_VERSION+"/news/read")
+# async def create_item(news_url: HttpUrl):
+#     data = scrap.news(news_url)
+#     return BaseResponse(message="News", data=data)
 
 @app.get(config.API_VERSION+"/statistics/topscorer")
 async def read_item():
